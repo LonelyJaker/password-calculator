@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码计算器</title>
+    <style>
+        /* 基础样式保持不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin: 20px 0 30px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        header p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        main {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        /* 输入区域样式 */
+        .inputs-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .date-input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        input[type="text"].date-input {
+            width: 100%;
+            padding: 10px 35px 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        input[type="text"].date-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* 预设日期按钮样式 */
+        .preset-dates {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .preset-date-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .preset-date-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        /* 日历图标按钮样式 */
+        .calendar-icon-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 38px;
+            background: none;
+            border: none;
+            border-left: 1px solid #e5e7eb;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calendar-icon-btn:hover {
+            background-color: #f9fafb;
+            color: #3b82f6;
+        }
+        
+        #calculateBtn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            margin-top: 10px;
+        }
+        
+        .form-hint {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+        
+        /* 卡片区域样式 */
+        .cards-section {
+            margin-top: 20px;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 480px) {
+            .card-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .info-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 18px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-value {
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+            margin-bottom: 5px;
+        }
+        
+        .card-hint {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        /* 版本提示样式 */
+        .version-hint {
+            font-size: 12px;
+            color: #dc2626;
+            padding: 4px 8px;
+            background-color: rgba(220, 38, 38, 0.05);
+            border-radius: 4px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        .new-version-hint {
+            font-size: 12px;
+            color: #166534;
+            padding: 4px 8px;
+            background-color: rgba(22, 101, 52, 0.05);
+            border-radius: 4px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        /* 卡片颜色样式 */
+        .dynamic-card {
+            background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .factory-card {
+            background: linear-gradient(to bottom right, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .chip8255-card {
+            background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .chip8255-new-card {
+            background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.05), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .dynamic-title { color: #3b82f6; }
+        .factory-title { color: #f59e0b; }
+        .chip8255-title { color: #10b981; }
+        .chip8255-new-title { color: #8b5cf6; }
+        
+        .dynamic-value { color: #3b82f6; font-size: 26px; }
+        .factory-value { color: #f59e0b; font-size: 26px; }
+        .chip8255-value { color: #10b981; font-size: 26px; }
+        .chip8255-new-value { color: #8b5cf6; font-size: 26px; }
+        
+        .explanation {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .explanation h3 {
+            font-size: 17px;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        
+        .explanation ul {
+            list-style-type: disc;
+            list-style-position: inside;
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            padding: 10px 0;
+        }
+        
+        /* 日期选择器样式 */
+        .date-picker {
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            width: 290px;
+            padding: 15px;
+            display: none;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .calendar-nav {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calendar-nav:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        .current-month {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .weekday {
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+            padding: 5px 0;
+        }
+        
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .day-btn {
+            background: none;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .day-btn:hover {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+        
+        .day-btn.selected {
+            background: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>密码计算器</h1>
+            <p>根据SOP时间和当前时间自动计算8155动态密码、8255新旧版动态密码、工厂模式密码</p>
+        </header>
+
+        <main>
+            <!-- 输入选择区域 -->
+            <div class="inputs-section">
+                <div class="form-group">
+                    <label for="sopDate">设置SOP时间（用于8155动态密码、8255新版动态密码和工厂模式密码）</label>
+                    <div class="date-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="sopDate" 
+                            class="date-input"
+                            placeholder="例如: 20250930" 
+                            maxlength="8"
+                            value="20250930"
+                        >
+                        <button class="calendar-icon-btn" data-target="sopDate">📅</button>
+                    </div>
+                    <p class="form-hint">请输入8位数字的日期，例如2025年9月30日应输入20250930</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="chip8255OldSopDate">设置8255旧版密码SOP时间</label>
+                    <div class="date-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="chip8255OldSopDate" 
+                            class="date-input"
+                            placeholder="例如: 20250530" 
+                            maxlength="8"
+                            value="20250530"
+                        >
+                        <button class="calendar-icon-btn" data-target="chip8255OldSopDate">📅</button>
+                    </div>
+                    <p class="form-hint">请选择或输入8位数字的日期</p>
+                    <!-- 新增预设日期按钮 -->
+                    <div class="preset-dates">
+                        <button class="preset-date-btn" data-date="20250530" data-target="chip8255OldSopDate">20250530</button>
+                        <button class="preset-date-btn" data-date="20250830" data-target="chip8255OldSopDate">20250830</button>
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <button id="calculateBtn">
+                        🔢 计算密码
+                    </button>
+                </div>
+            </div>
+
+            <!-- 卡片显示区域 -->
+            <div class="cards-section">
+                <div class="card-grid">
+                    <div class="info-card">
+                        <div class="card-title">⏰ 当前时间</div>
+                        <div id="currentTime" class="card-value">- - - - - -</div>
+                        <div class="card-hint">格式: MMDDHH (月日时)</div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="card-title">📅 8155&新版8255密码SOP时间</div>
+                        <div id="sopTimeDisplay" class="card-value">- - - - - - - -</div>
+                        <div class="card-hint">格式: YYYYMMDD</div>
+                    </div>
+                </div>
+                
+                <div class="card-grid">
+                    <div class="info-card">
+                        <div class="card-title">📅 8255旧版密码SOP时间</div>
+                        <div id="chip8255SopTime" class="card-value">20250530</div>
+                        <div class="card-hint">当前选择的旧版SOP值</div>
+                    </div>
+                </div>
+
+                <!-- 密码卡片区域 -->
+                <div class="card-grid">
+                    <div class="info-card factory-card">
+                        <div class="card-title factory-title">🏭 工厂模式密码</div>
+                        <div id="factoryPassword" class="card-value factory-value">------</div>
+                        <div class="card-hint">SOP时间×当前时间-当前小时，取最后六位</div>
+                    </div>
+
+                    <div class="info-card dynamic-card">
+                        <div class="card-title dynamic-title">🔑 8155动态密码</div>
+                        <div id="dynamicPassword" class="card-value dynamic-value">------</div>
+                        <div class="card-hint">SOP时间与当前时间的积，取最后六位</div>
+                    </div>
+                </div>
+                
+                <!-- 8255新版动态密码卡片 -->
+                <div class="card-grid">
+                    <div class="info-card chip8255-new-card">
+                        <div class="card-title chip8255-new-title">🔑 8255新版动态密码</div>
+                        <div id="chip8255NewPassword" class="card-value chip8255-new-value">------</div>
+                        <div class="card-hint">SOP时间×当前时间-当前小时，取最后六位</div>
+                        <div class="new-version-hint">适用版本：dev/release 1028及以后</div>
+                    </div>
+                    
+                    <!-- 8255旧版本动态密码卡片 -->
+                    <div class="info-card chip8255-card">
+                        <div class="card-title chip8255-title">🔑 8255旧版动态密码</div>
+                        <div id="chip8255OldPassword" class="card-value chip8255-value">------</div>
+                        <div class="card-hint">旧版SOP时间×当前时间-当前小时，取最后六位</div>
+                        <div class="version-hint">适用版本：dev/release 1028以前</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="explanation">
+            <h3>ℹ️ 计算说明</h3>
+            <ul>
+                <li>8155动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH)) 的最后六位数字</li>
+                <li>8255新版动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH) - 当前小时数) 的最后六位数字 <strong>（适用于dev/release 1028及以后版本）</strong></li>
+                <li>8255旧版动态密码 = (选择的旧版SOP时间 × 当前时间(MMDDHH) - 当前小时数) 的最后六位数字 <strong>（适用于dev/release 1028以前版本）</strong></li>
+                <li>工厂模式密码 = SOP时间×当前时间-当前小时，取最后六位</li>
+                <li>8255旧版密码SOP时间可选择20250530或20250830，也可通过日历选择其他日期</li>
+            </ul>
+        </div>
+
+        <footer>
+            © 2025 密码计算器 | 自动更新时间: <span id="lastUpdated">- - - -</span>
+        </footer>
+    </div>
+
+    <!-- 日期选择器 - 新版SOP -->
+    <div id="datePicker-sopDate" class="date-picker">
+        <div class="calendar-header">
+            <button class="calendar-nav prev-month" data-target="sopDate">◀</button>
+            <div class="current-month" data-target="sopDate">2025年9月</div>
+            <button class="calendar-nav next-month" data-target="sopDate">▶</button>
+        </div>
+        <div class="weekdays">
+            <div class="weekday">日</div>
+            <div class="weekday">一</div>
+            <div class="weekday">二</div>
+            <div class="weekday">三</div>
+            <div class="weekday">四</div>
+            <div class="weekday">五</div>
+            <div class="weekday">六</div>
+        </div>
+        <div class="days-grid" data-target="sopDate"></div>
+    </div>
+    
+    <!-- 日期选择器 - 旧版8255 SOP -->
+    <div id="datePicker-chip8255OldSopDate" class="date-picker">
+        <div class="calendar-header">
+            <button class="calendar-nav prev-month" data-target="chip8255OldSopDate">◀</button>
+            <div class="current-month" data-target="chip8255OldSopDate">2025年5月</div>
+            <button class="calendar-nav next-month" data-target="chip8255OldSopDate">▶</button>
+        </div>
+        <div class="weekdays">
+            <div class="weekday">日</div>
+            <div class="weekday">一</div>
+            <div class="weekday">二</div>
+            <div class="weekday">三</div>
+            <div class="weekday">四</div>
+            <div class="weekday">五</div>
+            <div class="weekday">六</div>
+        </div>
+        <div class="days-grid" data-target="chip8255OldSopDate"></div>
+    </div>
+
+    <script>
+        // DOM元素缓存
+        const sopDateInput = document.getElementById('sopDate');
+        const chip8255OldSopDateInput = document.getElementById('chip8255OldSopDate');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const sopTimeDisplay = document.getElementById('sopTimeDisplay');
+        const chip8255SopTime = document.getElementById('chip8255SopTime');
+        const dynamicPasswordDisplay = document.getElementById('dynamicPassword');
+        const factoryPasswordDisplay = document.getElementById('factoryPassword');
+        const chip8255NewPasswordDisplay = document.getElementById('chip8255NewPassword');
+        const chip8255OldPasswordDisplay = document.getElementById('chip8255OldPassword');
+        const lastUpdatedDisplay = document.getElementById('lastUpdated');
+        const presetDateBtns = document.querySelectorAll('.preset-date-btn');
+        
+        // 日历相关元素
+        const calendarIconBtns = document.querySelectorAll('.calendar-icon-btn');
+        const datePickers = document.querySelectorAll('.date-picker');
+        const prevMonthBtns = document.querySelectorAll('.prev-month');
+        const nextMonthBtns = document.querySelectorAll('.next-month');
+        const currentMonthEls = document.querySelectorAll('.current-month');
+        const daysGrids = document.querySelectorAll('.days-grid');
+
+        // 日期状态管理
+        const dateStates = {
+            sopDate: {
+                selectedDate: new Date(2025, 8, 30), // 2025年9月30日
+                currentDisplayMonth: new Date(2025, 8, 30)
+            },
+            chip8255OldSopDate: {
+                selectedDate: new Date(2025, 4, 30), // 默认2025年5月30日
+                currentDisplayMonth: new Date(2025, 4, 30)
+            }
+        };
+
+        // 初始化日期选择器
+        function initDatePickers() {
+            // 为每个日期选择器初始化日历
+            Object.keys(dateStates).forEach(target => {
+                renderCalendar(target, dateStates[target].currentDisplayMonth);
+            });
+            
+            // 日历图标按钮点击事件
+            calendarIconBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const target = btn.getAttribute('data-target');
+                    const picker = document.getElementById(`datePicker-${target}`);
+                    
+                    // 切换显示/隐藏
+                    if (picker.style.display === 'block') {
+                        picker.style.display = 'none';
+                    } else {
+                        datePickers.forEach(p => p.style.display = 'none');
+                        picker.style.display = 'block';
+                        positionDatePicker(target);
+                    }
+                });
+            });
+            
+            // 点击外部关闭日期选择器
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.date-picker') && !e.target.closest('.calendar-icon-btn')) {
+                    datePickers.forEach(picker => {
+                        picker.style.display = 'none';
+                    });
+                }
+            });
+            
+            // 月份导航
+            prevMonthBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+                    dateStates[target].currentDisplayMonth.setMonth(
+                        dateStates[target].currentDisplayMonth.getMonth() - 1
+                    );
+                    renderCalendar(target, dateStates[target].currentDisplayMonth);
+                });
+            });
+            
+            nextMonthBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+                    dateStates[target].currentDisplayMonth.setMonth(
+                        dateStates[target].currentDisplayMonth.getMonth() + 1
+                    );
+                    renderCalendar(target, dateStates[target].currentDisplayMonth);
+                });
+            });
+
+            // 预设日期按钮点击事件
+            presetDateBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const date = btn.getAttribute('data-date');
+                    const target = btn.getAttribute('data-target');
+                    const input = document.getElementById(target);
+                    
+                    // 设置输入框值
+                    input.value = date;
+                    
+                    // 更新日期状态
+                    const year = parseInt(date.substr(0, 4));
+                    const month = parseInt(date.substr(4, 2)) - 1;
+                    const day = parseInt(date.substr(6, 2));
+                    dateStates[target].selectedDate = new Date(year, month, day);
+                    dateStates[target].currentDisplayMonth = new Date(year, month, day);
+                    
+                    // 重新渲染日历
+                    renderCalendar(target, dateStates[target].currentDisplayMonth);
+                    
+                    // 计算密码
+                    calculatePasswords();
+                });
+            });
+        }
+        
+        // 定位日期选择器
+        function positionDatePicker(target) {
+            const input = document.getElementById(target);
+            const inputRect = input.getBoundingClientRect();
+            const picker = document.getElementById(`datePicker-${target}`);
+            
+            picker.style.top = `${inputRect.bottom + window.scrollY + 4}px`;
+            picker.style.left = `${inputRect.left + window.scrollX}px`;
+        }
+        
+        // 渲染日历
+        function renderCalendar(target, date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const daysGrid = document.querySelector(`.days-grid[data-target="${target}"]`);
+            const currentMonthEl = document.querySelector(`.current-month[data-target="${target}"]`);
+            
+            currentMonthEl.textContent = `${year}年${month + 1}月`;
+            daysGrid.innerHTML = '';
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // 添加上月占位
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                daysGrid.appendChild(emptyDay);
+            }
+            
+            // 添加当月天数
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('button');
+                dayEl.className = 'day-btn';
+                dayEl.textContent = day;
+                
+                // 标记选中日期
+                if (day === dateStates[target].selectedDate.getDate() && 
+                    month === dateStates[target].selectedDate.getMonth() && 
+                    year === dateStates[target].selectedDate.getFullYear()) {
+                    dayEl.classList.add('selected');
+                }
+                
+                // 选择日期事件
+                dayEl.addEventListener('click', () => {
+                    dateStates[target].selectedDate = new Date(year, month, day);
+                    updateDateInput(target);
+                    renderCalendar(target, dateStates[target].currentDisplayMonth);
+                    document.getElementById(`datePicker-${target}`).style.display = 'none';
+                    calculatePasswords();
+                });
+                
+                daysGrid.appendChild(dayEl);
+            }
+        }
+        
+        // 更新日期输入框
+        function updateDateInput(target) {
+            const date = dateStates[target].selectedDate;
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById(target).value = `${year}${month}${day}`;
+        }
+
+        // 格式化当前时间为MMDDHH
+        function formatCurrentTime(date) {
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            return `${month}${day}${hour}`;
+        }
+
+        // 格式化日期显示
+        function formatDateTime(date) {
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+
+        // 计算密码
+        function calculatePasswords() {
+            const userSopDate = sopDateInput.value.trim();
+            const chip8255OldSopDate = chip8255OldSopDateInput.value.trim();
+            
+            // 验证输入格式
+            if (!/^\d{8}$/.test(userSopDate)) {
+                alert('请输入有效的新版SOP时间，格式为8位数字（YYYYMMDD）');
+                return;
+            }
+            
+            if (!/^\d{8}$/.test(chip8255OldSopDate)) {
+                alert('请输入有效的8255旧版SOP时间，格式为8位数字（YYYYMMDD）');
+                return;
+            }
+
+            // 同步日期状态
+            [userSopDate, chip8255OldSopDate].forEach((dateStr, index) => {
+                const target = index === 0 ? 'sopDate' : 'chip8255OldSopDate';
+                const year = parseInt(dateStr.substr(0, 4));
+                const month = parseInt(dateStr.substr(4, 2)) - 1;
+                const day = parseInt(dateStr.substr(6, 2));
+                const tempDate = new Date(year, month, day);
+                
+                if (tempDate.getFullYear() === year && 
+                    tempDate.getMonth() === month && 
+                    tempDate.getDate() === day) {
+                    dateStates[target].selectedDate = tempDate;
+                    dateStates[target].currentDisplayMonth = new Date(tempDate);
+                }
+            });
+
+            const now = new Date();
+            const currentTimeStr = formatCurrentTime(now);
+            const currentHour = now.getHours();
+            
+            // 更新显示
+            currentTimeDisplay.textContent = currentTimeStr;
+            sopTimeDisplay.textContent = userSopDate;
+            chip8255SopTime.textContent = chip8255OldSopDate;
+            lastUpdatedDisplay.textContent = formatDateTime(now);
+
+            // 计算各密码
+            const userSopNumber = parseInt(userSopDate, 10);
+            const currentNumber = parseInt(currentTimeStr, 10);
+            
+            // 8155动态密码
+            const dynamicPassword = String(userSopNumber * currentNumber).slice(-6).padStart(6, '0');
+            
+            // 8255新版动态密码
+            const chip8255NewPassword = String(userSopNumber * currentNumber - currentHour)
+                .slice(-6).padStart(6, '0');
+            
+            // 工厂模式密码
+            const factoryPassword = String(parseInt(dynamicPassword, 10) - currentHour)
+                .padStart(6, '0').slice(-6);
+            
+            // 8255旧版动态密码（使用选择的SOP时间）
+            const chip8255OldSopNumber = parseInt(chip8255OldSopDate, 10);
+            const chip8255OldPassword = String(chip8255OldSopNumber * currentNumber - currentHour)
+                .slice(-6).padStart(6, '0');
+
+            // 更新密码显示
+            dynamicPasswordDisplay.textContent = dynamicPassword;
+            chip8255NewPasswordDisplay.textContent = chip8255NewPassword;
+            factoryPasswordDisplay.textContent = factoryPassword;
+            chip8255OldPasswordDisplay.textContent = chip8255OldPassword;
+        }
+
+        // 自动更新设置
+        function setupAutoUpdate() {
+            calculatePasswords();
+            
+            // 计算到下一小时的毫秒数
+            const now = new Date();
+            const nextHour = new Date(now);
+            nextHour.setHours(now.getHours() + 1);
+            nextHour.setMinutes(0);
+            nextHour.setSeconds(0);
+            const msToNextHour = nextHour - now;
+            
+            // 定时更新
+            setTimeout(() => {
+                calculatePasswords();
+                setInterval(calculatePasswords, 60 * 60 * 1000);
+            }, msToNextHour);
+        }
+
+        // 事件监听
+        calculateBtn.addEventListener('click', calculatePasswords);
+        
+        // 输入框回车触发计算
+        [sopDateInput, chip8255OldSopDateInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') calculatePasswords();
+            });
+        });
+
+        // 初始化
+        initDatePickers();
+        setupAutoUpdate();
+    </script>
+</body>
+</html>
