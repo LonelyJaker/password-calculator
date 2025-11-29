@@ -438,7 +438,7 @@
         
         /* 卡片颜色样式 - 开始 */
         .dynamic-card {
-            /* 8155&8255动态密码卡片 */
+            /* 8155&8255加密区动态密码卡片 */
             background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
             /* 渐变背景：浅蓝色 */
             border: 1px solid rgba(59, 130, 246, 0.2);
@@ -789,7 +789,7 @@
                         </div>
                     </div>
 
-                    <!-- 密码卡片区域：工程模式 + 8155&8255动态密码 -->
+                    <!-- 密码卡片区域：工程模式 + 8155&8255加密区动态密码 -->
                     <div class="card-grid">
                         <div class="info-card factory-card">
                             <div class="card-title factory-title">🏭 工程模式动态密码</div>
@@ -799,7 +799,7 @@
                         </div>
 
                         <div class="info-card dynamic-card">
-                            <div class="card-title dynamic-title">🔑 8155&8255动态密码</div>
+                            <div class="card-title dynamic-title">🔑 8155&8255加密区动态密码</div>
 							<div<strong style="color:#dc2626">(工程模式内使用)
                             <div id="dynamicPassword" class="card-value dynamic-value">------</div>
                             <div class="card-hint">SOP时间与当前时间的积，取最后六位</div>
@@ -831,7 +831,7 @@
         <div class="explanation-card">
             <h3>ℹ️ 计算说明</h3>
             <ul>
-                <li>8155&8255动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH)) 的最后六位数字 <strong style="color:#dc2626">（适用于1118dev/release及以后版本）</strong></li>
+                <li>8155&8255加密区动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH)) 的最后六位数字 <strong style="color:#dc2626">（适用于1118dev/release及以后版本）</strong></li>
                 <li>8255新版动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH) - 当前小时数) 的最后六位数字 <strong>（适用于1028至1117dev/release版本）</strong></li>
                 <li>8255旧版动态密码 = (选择的旧版SOP时间 × 当前时间(MMDDHH) - 当前小时数) 的最后六位数字 <strong>（适用于dev/release 1028以前版本）</strong></li>
                 <li>工程模式动态密码 = SOP时间×当前时间-当前小时，取最后六位</li>
@@ -897,7 +897,7 @@
         const sopTimeDisplay = document.getElementById('sopTimeDisplay');
         // 8255旧版SOP时间显示元素
         const chip8255SopTime = document.getElementById('chip8255SopTime');
-        // 8155&8255动态密码显示元素
+        // 8155&8255加密区动态密码显示元素
         const dynamicPasswordDisplay = document.getElementById('dynamicPassword');
         // 工程模式密码显示元素
         const factoryPasswordDisplay = document.getElementById('factoryPassword');
@@ -1170,14 +1170,14 @@
             const userSopNumber = parseInt(userSopDate, 10); // 新版SOP时间数字
             const currentNumber = parseInt(currentTimeStr, 10); // 当前时间数字
             
-            // 计算8155&8255动态密码：SOP×当前时间，取最后6位
+            // 计算8155&8255加密区动态密码：SOP×当前时间，取最后6位
             const dynamicPassword = String(userSopNumber * currentNumber).slice(-6).padStart(6, '0');
             
             // 计算8255新版动态密码：SOP×当前时间-当前小时，取最后6位
             const chip8255NewPassword = String(userSopNumber * currentNumber - currentHour)
                 .slice(-6).padStart(6, '0');
             
-            // 计算工程模式动态密码：8155密码-当前小时，取最后6位
+            // 计算工程模式动态密码：SOP时间×当前时间-当前小时，取最后6位
             const factoryPassword = String(parseInt(dynamicPassword, 10) - currentHour)
                 .padStart(6, '0').slice(-6);
             
@@ -1187,7 +1187,7 @@
                 .slice(-6).padStart(6, '0');
 
             // 更新密码显示
-            dynamicPasswordDisplay.textContent = dynamicPassword; // 8155&8255动态密码
+            dynamicPasswordDisplay.textContent = dynamicPassword; // 8155&8255加密区动态密码
             chip8255NewPasswordDisplay.textContent = chip8255NewPassword; // 8255新版动态密码
             factoryPasswordDisplay.textContent = factoryPassword; // 工程模式动态密码
             chip8255OldPasswordDisplay.textContent = chip8255OldPassword; // 8255旧版动态密码
